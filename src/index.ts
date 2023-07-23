@@ -1,7 +1,9 @@
 export {
   createEffect,
   createSignal,
-} from './signal'
+  compute,
+  computeMore,
+} from './reactivity'
 
 export {
   h,

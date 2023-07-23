@@ -5,13 +5,13 @@ import viteLogo from '/vite.svg'
 
 function Counter() {
   const [cnt, setCnt] = createSignal(0)
-  const el = h('button', { id: 'counter', type: 'button' }, cnt)
+  const el = h('button', { id: 'counter', type: 'button', class: () => `cnt-${cnt()}` }, cnt)
   el.addEventListener('click', () => setCnt(cnt() + 1))
   return el
 }
 
 export default function App() {
-  return h('div', null, [
+  return h('div', { id: 'app' }, [
     h('a', { href: 'https://vitejs.dev', target: '_blank' }, [
       h('img', { src: viteLogo, class: 'logo', alt: 'Vite logo' }),
     ]),

@@ -1,22 +1,29 @@
-import { createEffect } from './signal'
-import type { G, NodeValue } from './types'
-
-function toString(val: Exclude<NodeValue, HTMLElement>) {
-  return String(val)
-}
+import { createEffect } from './reactivity'
+import type { Attrs, Child, Children } from './types'
 
 export function h(
   comp: string,
-  props?: Record<string, string> | null,
-  children?: NodeValue | G<NodeValue> | (NodeValue | G<NodeValue>)[] | null,
+  attrs?: Attrs | null,
+  children?: Children | null,
 ) {
   const el = document.createElement(comp)
   let created = false
 
-  handleProps()
+  // initialize
+  handleAttrs()
   handleChildren()
-
   created = true
+
+  function handleAttrs() {
+    if (attrs) {
+      for (const [k, v] of Object.entries(attrs)) {
+        if (typeof v === 'function')
+          createEffect(() => el.setAttribute(k, v()))
+        else
+          el.setAttribute(k, v)
+      }
+    }
+  }
 
   function handleChildren() {
     if (children) {
@@ -31,7 +38,7 @@ export function h(
     }
   }
 
-  function handleChild(child: NodeValue | G<NodeValue>, index: number) {
+  function handleChild(child: Child, index: number) {
     if (typeof child === 'function') {
       createEffect(() => handleChild(child(), index))
     }
@@ -43,16 +50,9 @@ export function h(
     }
     else {
       if (created)
-        el.childNodes[index].textContent = toString(child)
+        el.childNodes[index].textContent = String(child)
       else
-        el.appendChild(document.createTextNode(toString(child)))
-    }
-  }
-
-  function handleProps() {
-    if (props) {
-      for (const [k, v] of Object.entries(props))
-        el.setAttribute(k, v)
+        el.appendChild(document.createTextNode(String(child)))
     }
   }
 
